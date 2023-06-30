@@ -9,6 +9,7 @@ from plotly.graph_objs import Figure
 import numpy as np
 import stim_builder as sb
 from plotly.subplots import make_subplots
+from aws_helper import save_to_s3
 
 
 app = dash.Dash(__name__)
@@ -108,6 +109,10 @@ app.layout = html.Div(style={'width':'80%', 'margin':'auto', 'padding': '20px'},
         html.Label('Name:', style={'font-weight':'bold'}),
         dcc.Input(id='name', type='text', value=''),
     ]),
+    html.Div(style={'marginBottom': '10px', 'textAlign':'center'}
+                , children=[
+        html.Label('Description:',id='user-message', style={'font-weight':'bold'}),
+                ]),
 
     html.Div(style={'display': 'flex', 'justifyContent': 'space-between', 'marginBottom': '10px'}, children=[
         html.Button('Generate', id='generate-button', style={'width':'30%', 'height':'50px', 'background-color':'#007BFF', 'color':'white', 'border':'none', 'cursor':'pointer'}),
@@ -167,6 +172,35 @@ def update_output(freq, commands, current_fig):
         return freq_message, fig, output_commands
 
     return dash.no_update, dash.no_update, dash.no_update
+
+@app.callback(
+    [Output('user-message', 'children')],
+    [Input('save-button', 'n_clicks')],
+    [State('commands-store', 'data'), State('name', 'value')]
+)
+def save_commands(n_clicks, commands, name):
+    ctx = dash.callback_context
+
+    if not ctx.triggered:
+        return dash.no_update
+    else:
+        input_id = ctx.triggered[0]['prop_id'].split('.')[0]
+
+    if input_id == 'save-button':
+        if name:
+            response = save_to_s3(name + '.txt',str(commands))
+        else:
+            print('Please enter a name for the file')
+
+    # Update user message
+
+    if response:
+        return ['Saved to S3'] if input_id == 'save-button' else dash.no_update
+    else:
+        return ['Error saving to S3 with ' + name] if input_id == 'save-button' else dash.no_update
+
+    
+
 
 
 @app.callback(
