@@ -23,15 +23,13 @@ RUN python -m pip install --force-reinstall --no-cache-dir git+https://github.co
 RUN python -m pip install --no-cache-dir \
     pyyaml \
     dash \
-    nptyping
+    nptyping \
+    boto3
 
 ENV ENDPOINT=https://s3-west.nrp-nautilus.io
 
 ENTRYPOINT []
-COPY ./stim_builder_plotly.py /home/jovyan/stim_builder_plotly.py
-COPY ./stim_builder.py /home/jovyan/stim_builder.py
-COPY ./assets /home/jovyan/assets
-COPY ./aws_helper.py /home/jovyan/aws_helper.py
+
 
 USER root
 CMD ["python", "/home/jovyan/stim_builder_plotly.py"]
