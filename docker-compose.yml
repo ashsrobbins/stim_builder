@@ -6,8 +6,9 @@ services:
     ports:
       - "0.0.0.0:8059:8050"
      #  - "127.0.0.1:8051:8050" 
- #  volumes:
-      # - ~/.aws/credentials:/root/.aws/credentials:ro
+    volumes:
+      - ./assets:/home/jovyan/assets
+      - ~/.aws/credentials:/home/jovyan/.aws/credentials:ro
      # usernames and passwords
       # - ./users.py:/console/users.py
       # - ./.env:/console/.env
