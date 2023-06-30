@@ -111,7 +111,7 @@ app.layout = html.Div(style={'width':'80%', 'margin':'auto', 'padding': '20px'},
     ]),
     html.Div(style={'marginBottom': '10px', 'textAlign':'center'}
                 , children=[
-        html.Label('Description:',id='user-message', style={'font-weight':'bold'}),
+        html.Label('Click save to upload your file!',id='user-message', style={'font-weight':'bold'}),
                 ]),
 
     html.Div(style={'display': 'flex', 'justifyContent': 'space-between', 'marginBottom': '10px'}, children=[
