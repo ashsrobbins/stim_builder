@@ -86,15 +86,14 @@ app.layout = html.Div(style={'width':'80%', 'margin':'auto', 'padding': '20px'},
         html.Label('Length of Stim Cycle (s):', style={'font-weight':'bold', 'width':'100%'}),
         dcc.Slider(
             id='freq',
-            min=.05,
-            max=2,  # Adjust as needed
+            min=.02,
+            max=1,  # Adjust as needed
             step=.01,   # Adjust as needed
             value=1,
             marks={
-                .05: '.05 seconds',
-                .75: '.75 seconds',
-                1.5: '1.5 seconds',
-                2: '2'
+                .02: '.02 seconds',
+                .5: '.5 seconds',
+                1: '1 seconds',
             }
         ),
         html.Div(id='freq-value', style={'textAlign':'center'}),
@@ -169,11 +168,11 @@ def update_output(freq, commands, current_fig):
         output_commands = []
         for cmd in commands:
             if cmd[0] == 'stim':
-                output_commands.append(html.Span(f'stim {cmd[1]} {cmd[2]} {cmd[3]}', style={'color':'#28a745', 'display':'block', 'marginBottom':'10px'}))
+                output_commands.append(html.Span(f'["stim", {cmd[1]}, {cmd[2]}, {cmd[3]}].', style={'color':'#28a745', 'display':'block', 'marginBottom':'10px'}))
             elif cmd[0] == 'delay':
-                output_commands.append(html.Span(f'delay {cmd[1]}', style={'color':'#ffc107', 'display':'block', 'marginBottom':'10px'}))
+                output_commands.append(html.Span(f'["delay", {cmd[1]}].', style={'color':'#ffc107', 'display':'block', 'marginBottom':'10px'}))
             elif cmd[0] == 'next':
-                output_commands.append(html.Span('next', style={'color':'#dc3545', 'display':'block', 'marginBottom':'10px'}))
+                output_commands.append(html.Span('["next"],', style={'color':'#dc3545', 'display':'block', 'marginBottom':'10px'}))
 
         return freq_message, fig, output_commands
 
@@ -194,14 +193,21 @@ def save_commands(n_clicks, commands, name):
 
     if input_id == 'save-button':
         if name:
-            response = save_to_s3(name + '.txt',str(commands))
+            try:
+                response = save_to_s3(name + '.txt',str(commands))
+            except:
+                # Save locally
+                with open(name + '.txt', 'w') as f:
+                    f.write(str(commands))
+                response = True
+
         else:
             print('Please enter a name for the file')
 
     # Update user message
 
     if response:
-        return ['Saved to S3'] if input_id == 'save-button' else dash.no_update
+        return ['Saved'] if input_id == 'save-button' else dash.no_update
     else:
         return ['Error saving to S3 with ' + name] if input_id == 'save-button' else dash.no_update
 
