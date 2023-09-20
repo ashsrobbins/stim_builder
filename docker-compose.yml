@@ -2,6 +2,7 @@ version: "3"
 services:
   stim-builder:
     build: .
+    image: ashsrobbins/plotly-stim-builder
     container_name: plotly-stim-builder
     ports:
       - "0.0.0.0:8059:8050"

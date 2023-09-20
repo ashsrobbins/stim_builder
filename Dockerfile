@@ -28,6 +28,10 @@ RUN python -m pip install --no-cache-dir \
 
 ENV ENDPOINT=https://s3-west.nrp-nautilus.io
 
+COPY *.py /home/jovyan/
+COPY ./assets/* /home/jovyan/assets/
+
+
 ENTRYPOINT []
 
 
