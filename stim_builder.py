@@ -109,7 +109,7 @@ def insert_square_wave_advanced(sig,time,phase_length=20, amplitude=1):
 
 
 
-def _create_stim_pulse_sequence(stim_list, freq_Hz=10, time_arr = None,max_time_s = 10, repeat=3):
+def _create_stim_pulse_sequence(stim_list, freq_Hz=10, time_arr = None,max_time_s = 2, repeat=3, fs=1000):
     """
     Creates a stim pulse sequence, parallels the real code that will run on the Maxwell
     
@@ -144,12 +144,12 @@ def _create_stim_pulse_sequence(stim_list, freq_Hz=10, time_arr = None,max_time_
     # And simulate what the stimulation will look like
     
     # Setup
-    fs = 20000
+    fs = 1000
     n_neurons = 5
     # if time_arr is None:
     #     t = np.arange(0,fs*max_time_s)/fs
-    t = np.arange(0,fs*max_time_s)/fs # time in seconds
-    sig = np.zeros(shape=(n_neurons,t.shape[0]))
+    t = np.arange(0,fs*repeat)/fs # time in seconds
+    sig = np.zeros(shape=(n_neurons,t.shape[0]//repeat))
 
     if len(stim_list) and stim_list[-1] != ('next', None):
         stim_list.append(('next', None))
@@ -161,19 +161,19 @@ def _create_stim_pulse_sequence(stim_list, freq_Hz=10, time_arr = None,max_time_
         # Until the time is right to stimulation the sequence
         frame_period = int(fs/freq_Hz)
         for time in t[::frame_period]:
-            print('Time', time)
+            # print('Time', time)
             time_frames = int(time*fs)
             
             
             if len(stim_list) == 0:
-                print("Stim list is empty, returning")
+                # print("Stim list is empty, returning")
                 return sig,t
             
             #Build the sequence
             command = None
             
             while (command != 'next' and len(stim_list) > 0):
-                print('Trying to pop from stim_list', stim_list)
+                # print('Trying to pop from stim_list', stim_list)
                 command, *params = stim_list.pop(0) # Get first thing off list
                 if command == 'stim':
                     neurons, amplitude, phase_length = params
@@ -190,7 +190,7 @@ def _create_stim_pulse_sequence(stim_list, freq_Hz=10, time_arr = None,max_time_
                 if command == 'next':
                     break 
                     
-        
+        sig = np.hstack([sig]*repeat)
         return sig,t
     return sig, t
                     

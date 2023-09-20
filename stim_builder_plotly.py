@@ -124,6 +124,9 @@ app.layout = html.Div(style={'width':'80%', 'margin':'auto', 'padding': '20px'},
 ])
 
 
+callback_count1 = 0
+callback_count2 = 0
+callback_count3 = 0
 
 @app.callback(
     [Output('freq-value', 'children'), Output('waveform-graph', 'figure'), Output('commands-list', 'children')],
@@ -131,7 +134,10 @@ app.layout = html.Div(style={'width':'80%', 'margin':'auto', 'padding': '20px'},
     [State('waveform-graph', 'figure')]
 )
 def update_output(freq, commands, current_fig):
-    freq_message = 'Current frequency: {:.1f} Hz'.format(1/freq)
+    # global callback_count1
+    # callback_count1 += 1
+    freq = 1/freq
+    freq_message = 'Current frequency: {:.1f} Hz'.format(freq)
     ctx = dash.callback_context
 
     if not ctx.triggered:
@@ -144,10 +150,10 @@ def update_output(freq, commands, current_fig):
             # Adjust the x-axis range based on the new frequency
             for i in range(len(current_fig['data'])):
                 current_fig['layout']['xaxis'+str(i+1) if i > 0 else 'xaxis']['range'] = [0, freq]
-            return freq_message, current_fig, dash.no_update
-    elif input_id == 'commands-store':
+            # return freq_message, current_fig, dash.no_update
+    if input_id == 'commands-store' or input_id == 'freq':
         commands_inp = commands.copy()
-        sig, t = sb._create_stim_pulse_sequence(commands_inp,freq)
+        sig, t = sb._create_stim_pulse_sequence(commands_inp,freq, fs=fs_ms*1000)
 
         fig = make_subplots(rows=sig.shape[0], cols=1)  # Create a subplot for each trace
 
@@ -202,7 +208,7 @@ def save_commands(n_clicks, commands, name):
     
 
 
-
+fs_ms = 1
 @app.callback(
     Output('commands-store', 'data'),  # Update the Store
     [Input('add-button', 'n_clicks'),
@@ -228,7 +234,7 @@ def update_commands_list(add_clicks, delay_clicks, next_clicks, reset_clicks, ne
             return commands
         commands.append(('stim', neuron_index, amplitude, frames//50))
     elif button_id == 'delay-button':
-        commands.append(('delay', delay_frames*20))
+        commands.append(('delay', delay_frames*fs_ms))
     elif button_id == 'next-button':
         commands.append(('next', None))
     elif button_id == 'reset-button':
